@@ -1,3 +1,39 @@
-FROM https://developer.nvidia.com/jetson-nano-sd-card-image 1
+# Example Pifile for Jetson Nano
+#
+# IMPORTANT: Run with --resolv host flag for network access:
+#   sudo pimod.sh --resolv host examples/Jetson.Pifile
+#
+# The Jetson image uses systemd-resolved which creates /etc/resolv.conf
+# as a symlink at boot time. In the pre-boot image, it's just an empty file,
+# so pimod needs --resolv host to mount the host's DNS configuration.
 
-PUMP 100M
+FROM https://github.com/aniongithub/jetson-nano-image-maker/releases/download/0.2/jetson-nano-2gb.tar.gz 1
+TO jetson-nano.img
+
+PUMP 2G
+
+# Install curl
+RUN bash -c '
+apt-get update
+apt-get install -y curl
+'
+
+# Install Docker from Ubuntu/NVIDIA repositories
+# The Jetson base image already has NVIDIA repos configured
+ENV LC_ALL C.UTF-8
+RUN bash -c '
+apt-get update
+apt-get install -y docker.io nvidia-docker2
+
+# Add jetson user to docker group
+groupadd --force docker
+usermod -aG docker jetson
+'
+
+# Install docker-compose and jetson monitoring tools
+RUN bash -c '
+apt-get update
+apt-get install -y git build-essential python3-pip
+pip3 install --upgrade pip setuptools wheel
+pip3 install docker-compose jetson-stats
+'

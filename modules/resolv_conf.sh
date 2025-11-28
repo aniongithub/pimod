@@ -9,8 +9,23 @@ resolv_conf_setup() {
 
   case "${PIMOD_HOST_RESOLV_TYPE}" in
     auto)
-      # Do not mount the host's file when a /etc/resolv.conf already exists.
-      ((test -f "${resolv_conf}") || (RUN test -e "/etc/resolv.conf")) && return
+      # Mount host's resolv.conf if guest's is missing, empty, or only has comments
+      if [[ ! -f "${resolv_conf}" ]] && ! (RUN test -e "/etc/resolv.conf"); then
+        # File doesn't exist at all
+        :
+      elif [[ -f "${resolv_conf}" ]]; then
+        # Check if file is empty or contains only comments/whitespace
+        if ! grep -q '^[^#[:space:]]' "${resolv_conf}" 2>/dev/null; then
+          # File is empty or only has comments - mount host's
+          :
+        else
+          # File has actual DNS configuration - use it
+          return
+        fi
+      else
+        # File exists but we can't read it, assume it's valid
+        return
+      fi
       ;;
 
     guest)
