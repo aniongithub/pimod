@@ -62,16 +62,47 @@ from_remote_fetch() {
       unarchive_image "${download_path}" "${tmpfile}"
       ;;
 
-    application/gzip)
-      gunzip -c "${download_path}" > "${tmpfile}"
-      ;;
-
-    application/x-gzip)
-      gunzip -c "${download_path}" > "${tmpfile}"
+    application/gzip | application/x-gzip)
+      # Decompress and check if it's a tarball
+      local decompressed
+      decompressed=$(mktemp)
+      gunzip -c "${download_path}" > "${decompressed}"
+      
+      local decompressed_mime
+      decompressed_mime=$(file -b --mime-type "${decompressed}")
+      
+      if [[ "${decompressed_mime}" == "application/x-tar" ]]; then
+        # It's a .tar.gz, extract the tarball
+        unarchive_image "${decompressed}" "${tmpfile}"
+        rm "${decompressed}"
+      else
+        # Just a gzipped image
+        mv "${decompressed}" "${tmpfile}"
+      fi
       ;;
 
     application/x-xz)
-      unxz -c "${download_path}" > "${tmpfile}"
+      # Decompress and check if it's a tarball
+      local decompressed
+      decompressed=$(mktemp)
+      unxz -c "${download_path}" > "${decompressed}"
+      
+      local decompressed_mime
+      decompressed_mime=$(file -b --mime-type "${decompressed}")
+      
+      if [[ "${decompressed_mime}" == "application/x-tar" ]]; then
+        # It's a .tar.xz, extract the tarball
+        unarchive_image "${decompressed}" "${tmpfile}"
+        rm "${decompressed}"
+      else
+        # Just an xz compressed image
+        mv "${decompressed}" "${tmpfile}"
+      fi
+      ;;
+
+    application/x-tar)
+      # Plain tarball
+      unarchive_image "${download_path}" "${tmpfile}"
       ;;
 
     *)
