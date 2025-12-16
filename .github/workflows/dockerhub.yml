@@ -1,6 +1,8 @@
 name: Build and upload DockerHub image
 
-on: [push]
+on:
+  release:
+    types: [published]
 
 # Configure DOCKERHUB_USER and DOCKER_IMAGE as repository variables
 # (Settings -> Variables) so forks can set their own values without
@@ -12,12 +14,15 @@ permissions:
 
 jobs:
   build-all:
+    # Only run when the release targets the repository's default branch
+    if: ${{ github.event.release.target_commitish == github.event.repository.default_branch }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           path: .
+          fetch-depth: 0
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -27,14 +32,11 @@ jobs:
           username: ${{ vars.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
+      - name: Set image tag from release
         id: meta
-        uses: docker/metadata-action@v5
-        with:
-          # DOCKER_IMAGE should be defined as a repository variable (Settings -> Variables)
-          images: ${{ vars.DOCKER_IMAGE }}
-          flavor: |
-            latest=true
+        run: |
+          echo "RELEASE_TAG=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          echo "IMAGE=${{ vars.DOCKER_IMAGE }}" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -48,5 +50,4 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64,linux/arm64,linux/arm/v7
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.IMAGE }}:${{ steps.meta.outputs.RELEASE_TAG }}
