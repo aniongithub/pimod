@@ -9,6 +9,10 @@ inputs:
     description: 'Pifile to run'
     required: true
     default: 'Pifile'
+  resolv:
+    description: 'Which /etc/resolv.conf behavior to use: auto|host|guest'
+    required: false
+    default: 'auto'
 runs:
   using: "composite"
   steps:
@@ -16,5 +20,5 @@ runs:
       shell: bash
     - run: sudo apt-get install -y binfmt-support exfatprogs fdisk file git kpartx qemu-user-static unzip p7zip-full wget xz-utils units
       shell: bash
-    - run: sudo ${{ github.action_path }}/pimod.sh ${{ inputs.pifile }}
+    - run: sudo ${{ github.action_path }}/pimod.sh --resolv ${{ inputs.resolv }} ${{ inputs.pifile }}
       shell: bash
