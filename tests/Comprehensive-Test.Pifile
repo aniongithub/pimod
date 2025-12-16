@@ -1,0 +1,42 @@
+```plaintext
+# Comprehensive test Pifile (for CI tests directory)
+# Exercises: FROM remote (.tar.xz extraction), PUMP, RUN (including pipes),
+# HOST, ENV, INCLUDE, ZERO, and SHRINK.
+
+FROM https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-02-22/2023-02-21-raspios-bullseye-arm64-lite.img.xz
+
+# Pump some space for package installs and modifications
+PUMP 200M
+
+# Demonstrate remote INCLUDE: include a small module from GitHub (raw)
+# This tests the remote-include code path used by pimod
+INCLUDE https://raw.githubusercontent.com/aniongithub/pi-bootstrap/refs/heads/main/modules/hostname.Pifile
+
+# Basic package operations inside the guest
+RUN apt-get update
+RUN apt-get install -y cowsay
+
+# Test environment variables and templating
+ENV TESTFOO test-value
+RUN sh -c 'echo RUN sees TESTFOO = $TESTFOO'
+RUN echo RUN templated TESTFOO = @@TESTFOO@@
+
+# Test HOST execution (runs on the host, not inside the image)
+HOST sh -c 'echo HOST sees TESTFOO = $TESTFOO'
+HOST echo HOST templated TESTFOO = @@TESTFOO@@
+
+# Test multiline and piped commands
+RUN bash -c "printf 'one\ntwo\nthree\n' | sed -n '2p'"
+
+# Test INCLUDE of a local module as well (module present in repo)
+INCLUDE examples/Module-Hello.Pifile
+
+# Zero unused space for better compression
+ZERO
+
+# Shrink result to minimal size
+SHRINK
+
+# Write output to tests/ for CI artifacts
+TO tests/comprehensive-test.img
+```
