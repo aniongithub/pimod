@@ -1,8 +1,8 @@
 # pimod
-[![CI: Tests](https://github.com/Nature40/pimod/actions/workflows/tests.yml/badge.svg)](https://github.com/Nature40/pimod/actions/workflows/tests.yml)
-[![CI: Shellcheck](https://github.com/Nature40/pimod/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/Nature40/pimod/actions/workflows/shellcheck.yml)
-[![CI: Build and upload DockerHub image](https://github.com/Nature40/pimod/actions/workflows/dockerhub.yml/badge.svg)](https://github.com/Nature40/pimod/actions/workflows/dockerhub.yml)
-[![Docker Hub: Version](https://img.shields.io/docker/v/nature40/pimod?color=blue&label=Docker%20Hub&logo=docker&logoColor=lightgrey&sort=semver)](https://hub.docker.com/r/nature40/pimod/tags)
+[![CI: Tests](https://github.com/aniongithub/pimod/actions/workflows/tests.yml/badge.svg)](https://github.com/aniongithub/pimod/actions/workflows/tests.yml)
+[![CI: Shellcheck](https://github.com/aniongithub/pimod/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/aniongithub/pimod/actions/workflows/shellcheck.yml)
+[![CI: Build and upload DockerHub image](https://github.com/aniongithub/pimod/actions/workflows/dockerhub.yml/badge.svg)](https://github.com/aniongithub/pimod/actions/workflows/dockerhub.yml)
+[![Docker Hub: Version](https://img.shields.io/docker/v/aniongithub/pimod?color=blue&label=Docker%20Hub&logo=docker&logoColor=lightgrey&sort=semver)](https://hub.docker.com/r/aniongithub/pimod/tags)
 
 Reconfigure Raspberry Pi images with an easy, Docker-like configuration file.
 
