@@ -35,8 +35,27 @@ jobs:
       - name: Set image tag from release
         id: meta
         run: |
-          echo "RELEASE_TAG=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
-          echo "IMAGE=${{ vars.DOCKER_IMAGE }}" >> $GITHUB_OUTPUT
+          # Compute release tag
+          RELEASE_TAG="${{ github.event.release.tag_name }}"
+
+          # Read repository vars (may be empty)
+          DOCKER_IMAGE_VAR='${{ vars.DOCKER_IMAGE }}'
+          DOCKERHUB_USER_VAR='${{ vars.DOCKERHUB_USER }}'
+
+          # Default image: if DOCKER_IMAGE is empty, use DOCKERHUB_USER/<repo-name> or <repo-name>
+          if [ -z "$DOCKER_IMAGE_VAR" ]; then
+            REPO_NAME=$(basename "$GITHUB_REPOSITORY")
+            if [ -n "$DOCKERHUB_USER_VAR" ]; then
+              IMAGE="$DOCKERHUB_USER_VAR/$REPO_NAME"
+            else
+              IMAGE="$REPO_NAME"
+            fi
+          else
+            IMAGE="$DOCKER_IMAGE_VAR"
+          fi
+
+          echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_OUTPUT
+          echo "IMAGE=$IMAGE" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
