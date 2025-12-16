@@ -1,4 +1,4 @@
-if [ -z "${PIMOD_HOST_RESOLV+x}" ]; then
+if [ -z "${PIMOD_HOST_RESOLV_TYPE+x}" ]; then
   PIMOD_HOST_RESOLV_TYPE="auto"
 fi
 
@@ -19,7 +19,24 @@ resolv_conf_setup() {
       ;;
 
     host)
-      # Always mount the host's file as an overlay.
+      # Always use the host's DNS configuration.
+      # If using systemd-resolved stub resolver, copy the actual resolv.conf contents
+      if grep -q "127.0.0.53" /etc/resolv.conf 2>/dev/null && [ -f /run/systemd/resolve/resolv.conf ]; then
+        if [ "${resolv_conf}" -ef /run/systemd/resolve/resolv.conf ]; then
+          # Copy the contents to ensure it works in chroot
+          cp /run/systemd/resolve/resolv.conf "${resolv_conf}.tmp"
+          mv "${resolv_conf}.tmp" "${resolv_conf}"
+        else
+          cp /run/systemd/resolve/resolv.conf "${resolv_conf}"
+        fi
+        return
+      fi
+      # Fall through to bind mount if not systemd-resolved
+      if ! touch "${resolv_conf}"; then
+        echo -e "\033[0;31m### Error: Creating ${resolv_conf} failed.\033[0m"
+        return 1
+      fi
+      mount -o ro,bind /etc/resolv.conf "${resolv_conf}"
       ;;
 
     *)
