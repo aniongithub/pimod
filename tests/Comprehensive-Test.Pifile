@@ -1,4 +1,3 @@
-```plaintext
 # Comprehensive test Pifile (for CI tests directory)
 # Exercises: FROM remote (.tar.xz extraction), PUMP, RUN (including pipes),
 # HOST, ENV, INCLUDE, ZERO, and SHRINK.
@@ -39,4 +38,3 @@ SHRINK
 
 # Write output to tests/ for CI artifacts
 TO tests/comprehensive-test.img
-```
