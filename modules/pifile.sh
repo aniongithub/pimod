@@ -28,20 +28,26 @@ execute_pifile() {
     echo -e "\033[0;33m### Warning: Pifile contains CRLF, please use a Unix-like newline.\033[0m"
 
   inspect_pifile_name "$1"
-
   bash -n "$1"
+
+  # Resolve absolute paths for modules and stages (handle being sourced or symlinked)
+  MODULE_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
+  STAGES_DIR="${MODULE_DIR}/../stages"
+
+  # Absolute path to provided Pifile
+  PIFILE_ABS="$(cd -P "$(dirname "$1")" >/dev/null && pwd)/$(basename "$1")"
 
   declare -a stages=( "10-setup" "20-prepare" "30-chroot" "40-postprocess" )
   for stage in "${stages[@]}"; do
-    pushd "$(dirname "$0")/modules" > /dev/null || exit 2
-    . "../stages/00-commands.sh"
-    . "../stages/${stage}.sh"
-    popd > /dev/null || exit 2
+    # shellcheck disable=SC1090
+    . "${STAGES_DIR}/00-commands.sh"
+    # shellcheck disable=SC1090
+    . "${STAGES_DIR}/${stage}.sh"
 
     pre_stage
 
     # shellcheck disable=SC1090
-    . "$1"
+    . "${PIFILE_ABS}"
 
     post_stage
   done
