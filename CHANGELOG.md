@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    The title should be `${VERSION} - ${YYYY-MM-DD}` and the description should contain the section from this `CHANGELOG.md`.
 
 ## [Unreleased]
+### Added
+- `FROM` with a remote URL now supports compressed tarballs (`.tar.gz`, `.tar.xz`) and plain tarballs (`.tar`) in addition to bare compressed images.
+  - Gzip/xz payloads are inspected after decompression: if the result is a tarball it is extracted, otherwise it is used directly as the image (preserving the previous behaviour for `.img.gz`/`.img.xz`).
 
 ## [0.9.1] - 2024-12-22
 ### Fixed
